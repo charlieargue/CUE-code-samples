@@ -16,6 +16,15 @@
 
 
 
+# **Table of Contents**
+
+- [🕙 How I Spent My Time](https://github.com/charlieargue/CUE-code-samples#-how-i-spent-my-time)
+- [💻 Code Samples](https://github.com/charlieargue/CUE-code-samples#-code-samples)
+- [🗣 Testimonials and Feedback](https://github.com/charlieargue/CUE-code-samples#-testimonials-and-feedback)
+- [⭐️ UI Features / Highlights](https://github.com/charlieargue/CUE-code-samples#️-ui-features--highlights)
+
+
+
 
 
 # 🕙 How I Spent My Time
@@ -34,7 +43,196 @@ pie
 
 # Code Samples
 
+
+
+### RTK-Q Refactoring Journey
+
+- show ==hooks== WITHOUT RTK-Q 👎 BEFORE & 👍 AFTER: 
+- RTK-Q: show my typescript ==builder pattern==, yes!
+- RTK-Q: big ==live visit one== (just after, yes I think! it'll be sanitized!)
+- Account Profile.tsx (see below)
+- show "what we were able ==to remove==", and maybe show as an example, one of the bad FILES we were entirely able to remove, like LV or something :), show some ==screen grabs of the GITHUB removal RED tags!!!!==💎
+- show the ==useEffects== we removed!
+- Show 👎 BEFORE & 👍 AFTER: `setUnreadMessages` b/c now using ==React.Context== here below
+
+
+
+# State Mngmnt / RTK-Q and React.Context REFACTORING BEFORE & AFTER:
+
+- [ ] **React.Context:** 👎 BEFORE & 👍 AFTER: 
+
+  - [ ] ```js 
+    EVERY LITTLE THING!
+    👎 BEFORE & (for real! it almost looks like a joke ;)
+    // setUnreadMessages: (state) => {
+            //     if (state.twilioModal) {
+            //         return {
+            //             ...state,
+            //             twilioModal: {
+            //                 ...state.twilioModal,
+            //                 unreadMessages: true,
+            //             },
+            //         };
+            //     }
+            // },
+      
+      
+      
+      👍 AFTER: 
+    
+    case 'setUnreadMessages': {
+      return { ...state, unreadMessages: true };
+    }
+    ```
+
+
+
+
+
+# POKAZ: `Account Profile.tsx` and containers
+
+**Before:**
+
+* lots of selectors and everything in REDUX
+* State over-complicated and stored twice (in Formik state and again in Redux)
+* lots of `useEffects` making it hard to reason about this component, esp. for new React engineers
+```js
+// 👎 BEFORE: 
+const AccountProfileContainer: FC = () => {
+    const dispatch = useAppDispatch();
+    const profile = useSelector(selectProfileData);
+    const isProfilePending = useSelector(selectIsProfileStatusPending);
+    const isUpdateProfilePending = useSelector(selectIsUpdateProfileStatusPending);
+    const isUpdateProfilePicturePending = useSelector(selectIsUpdateProfilePictureStatusPending);
+    const pracititionerFHIRResource = useSelector(selectPractitionerFHIRResource);
+    const usStates = useSelector(selectStatesAbbreviation);
+    const isUSStatesPending = useSelector(selectIsStatesStatusPending);
+    const i18nConfig = useSelector(selectConfigData);
+    const [formData, setFormData] = useState<AccountProfileFormValues>({
+        firstName: '',
+        middleName: '',
+        lastName: '',
+        email: '',
+        type: AuthTypes.UserType.Home,
+        phoneType: null,
+        phoneNumber: '',
+        zipCode: '',
+        city: '',
+        birthDate: '',
+        stateOfResidence: '',
+        prefix: '',
+        suffix: '',
+        picture: '',
+        fax: '',
+        address: '',
+    });
+
+    useEffect(() => {
+        dispatch(fetchProfile({}));
+        dispatch(fetchStates());
+        dispatch(fetchConfig());
+    }, []);
+
+    useEffect(() => {
+        if (!profile) return;
+        if (profile.practitionerId) {
+            dispatch(practitionerThunks.fetchById(profile.practitionerId));
+        }
+        setFormData({
+            ...formData,
+            ...profileToAccountProfileFormValues(profile),
+        });
+    }, [profile]);
+
+    useEffect(() => {
+        if (!pracititionerFHIRResource) return;
+        setFormData({
+            ...formData,
+            ...practitionerToAccountProfileFormValues(pracititionerFHIRResource),
+        });
+    }, [pracititionerFHIRResource]);
+  
+  // ....
+```
+
+**PLUS all these REDUX plumbing <u>files</u> , totally HUNDREDS and often thousands of lines of code:**
+
+1. 🧩 actions (AsyncThunk)
+
+2. 🧩 api fetchers functions
+
+3. 🧩 selectors
+
+4. 🧩 state slices
+
+5. 🧩 reducers
+
+   
+
+
+
+
+
+
+**After:**
+
+* no selectors
+* no extra redundant state, Formik handles everything
+* no extra `useEffects` 
+* all 🧩 REDUX plumbing files **deleted**!
+
+```js 
+// 👍 AFTER: 
+const AccountProfileContainer: FC = () => {
+    const dispatch = useAppDispatch();
+    const [triggerAddPractitioner] = practitionerApi.useAddMutation();
+    const [triggerEditPractitioner] = practitionerApi.useEditMutation();
+    const [triggerEditUser, { isLoading: isLoadingUser }] = useEditUserMutation();
+    const [triggerEditUserPicture, { isLoading: isLoadingUserPicture }] = useEditUserPictureMutation();
+    const [triggerWriteSignedUrl, { isLoading: isLoadingWriteSignedUrl }] = useWriteSignedUrlMutation();
+
+    const { data: stateList, isLoading: isLoadingStates, isFetching: isFetchingStates } = useFetchStatesQuery();
+    const usStates = (stateList || []).map(({ abbreviation }) => abbreviation);
+    const { data: profile, isLoading: isLoadingProfile } = useGetMeQuery();
+    const { data: i18nConfig, isLoading: isLoadingConfig, isFetching: isFetchingConfig } = useFetchConfigQuery();
+    let pracArgs: typeof skipToken | string = skipToken;
+    if (profile?.practitionerId) {
+        pracArgs = profile?.practitionerId;
+    }
+    const {
+        data: fhirPractitioner,
+        isLoading: isLoadingPractitionerFHIR,
+        isFetching: isFetchingPractitionerFHIR,
+    } = practitionerApi.useFetchByIdQuery(pracArgs);
+
+    const isLoading =
+        isLoadingStates ||
+        isFetchingStates ||
+        isLoadingProfile ||
+        isLoadingPractitionerFHIR ||
+        isFetchingPractitionerFHIR ||
+        isLoadingConfig ||
+        isFetchingConfig;
+
+    if (isLoading) {
+        return <>Loading...</>;
+    }
+
+		// ...
+```
+
+
+
+
+
+
+
+- [ ] POKAZ: the <DataFilters> and `<DataFiltersNew>`
+- [ ] POKAZ: the Live Visit container lol and after with RTK-Q :) ==and simpler visit history?==
+- [ ] SEE: [Code-RTK-Q-allowed-us-to-DECOMISH.md](/Users/karlgolka/PROJECTS/FYI/_Employers/Cue Health/__POCs/POC-2-RESULTS-✅/Code-RTK-Q-allowed-us-to-DECOMISH.md)
+
 - [ ] break up into files
+- [ ] ==STYLE-GUIDE!!!==
 - [ ] YES: show the one with 7 useEffects LV, right?
 - [ ] YES:  before and after?
 
@@ -280,56 +478,6 @@ export const PatientTestHistoryContainer: React.FC = () => {
 
 
 ![image](/Users/karlgolka/PROJECTS/FYI/_typora_images/image-6938065.png)
-
-
-
-# State Mngmnt / RTK-Q and React.Context REFACTORING BEFORE & AFTER:
-
-- [ ] **React.Context:** 👎 BEFORE & 👍 AFTER: 
-  
-  - [ ] ```js 
-    EVERY LITTLE THING!
-    👎 BEFORE & (for real! it almost looks like a joke ;)
-    // setUnreadMessages: (state) => {
-            //     if (state.twilioModal) {
-            //         return {
-            //             ...state,
-            //             twilioModal: {
-            //                 ...state.twilioModal,
-            //                 unreadMessages: true,
-            //             },
-            //         };
-            //     }
-            // },
-      
-      
-      
-      👍 AFTER: 
-    
-    case 'setUnreadMessages': {
-      return { ...state, unreadMessages: true };
-    }
-    ```
-
-
-
-# ✅ Tasks: 
-
-- [ ] POKAZ: `Account Profile.tsx` and containers
-- [ ] POKAZ: the <DataFilters> and `<DataFiltersNew>`
-- [ ] POKAZ: the Live Visit container lol and after with RTK-Q :) ==and simpler visit history?==
-- [ ] SEE: [Code-RTK-Q-allowed-us-to-DECOMISH.md](/Users/karlgolka/PROJECTS/FYI/_Employers/Cue Health/__POCs/POC-2-RESULTS-✅/Code-RTK-Q-allowed-us-to-DECOMISH.md)
-
-
-
-
-
-
-
-
-
-
-
 
 
 
