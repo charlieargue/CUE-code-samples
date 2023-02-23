@@ -1,10 +1,285 @@
-# CUE Code Samples
+# CUE Post-Mortem
 
 
 
-"As far as coding, your credentials are extremely high, I mean, there's not much I can teach you... if anything, I'm probably gonna have to learn from you..." [during 1-on-1 performance review] 
+>  "I would certainly appreciate and will solicit your input on who we should be keeping around... I think that you are seeing the opportunity of being this very senior person [and] the advocate for tech debt on the team ... great talk, I feel like I learned a ton, so thank you for that -- I feel like I've been educated quite a bit, and this is exactly the kind of thing I want to get out of these kinds of conversations." [during a 1-on-1] 
 
-— 🗣 *[Mazen Ghalayini](https://www.linkedin.com/in/mazen-g-a76139179/)* `Feb 15, 2022`  🔉 **[Audio Clip 1](https://github.com/charlieargue/pan-code-samples/issues/4)** 
+— 🗣 [Bobby Wayne](https://www.linkedin.com/in/bobbywayne/), VP, Software Development at Cue Health `Aug 17, 2022` 
+
+
+
+>  "Karl, a dev like you would be wanted anywhere. Thank you for all the help and mentorship. I learned a lot from you and already seen how much I've grown as an engineer, that's all thanks to you."
+
+— 🗣 [Karun Narayan](https://www.linkedin.com/in/karun-narayan/), SDE at Cue `Oct 6, 2022` 
+
+
+
+
+
+
+
+# 🕙 How I Spent My Time
+
+```mermaid
+pie
+    title Time Spent at CUE
+    "Refactoring & Tech Debt (40%)" : 40
+		"Onboarding & Mentoring SDEs (30%)" :  30
+		"React UI / Features (30%)" : 30
+```
+
+
+
+
+
+# Code Samples
+
+- [ ] break up into files
+- [ ] YES: show the one with 7 useEffects LV, right?
+- [ ] YES:  before and after?
+
+search here: ![image-20230222181056084](/Users/karlgolka/PROJECTS/FYI/_typora_images/image-20230222181056084.png)
+
+https://www.loom.com/share/cd0eafe654e54a539859d034da8a0e50 (24 minutes in is ==Before.tsx==)
+
+- [ ] VIP! must show this! it's sanitized I think, check it again! Super nice :) https://www.loom.com/share/cfa602e0bbc74e949d9a00efe4d2971e RTKQ Kick-off of my 749 epic ... == and shows my style-guide==
+
+
+
+
+
+### Sample #1 - Showing the POC - Phase #1
+
+==clean this up==
+
+```js 
+// THX: https://redux-toolkit.js.org/rtk-query/usage/migrating-to-rtk-query#custom-hook
+import { R4 } from '@ahryman40k/ts-fhir-types';
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useAsyncEffect } from '../../../lib/use-async-effect';
+import { thunks as thunksDiagReport } from '../../../modules/fhir/store/diagnostic-report/diagnostic-report-entity-adapter.slice';
+import { thunks as thunksObservation } from '../../../modules/fhir/store/observation/observation-adapter.slice';
+import { thunks as thunksPatient } from '../../../modules/fhir/store/patient-entity-adapter.slice';
+import {
+    patientObservationIdsSelector,
+    patientObservationsSelector,
+} from '../../../modules/patient/store/common/selectors';
+import { actions as PatientUICommonActions } from '../../../modules/patient/store/common/slice';
+import {
+    queryPendingSelector as queryPendingTestDetailsSelector,
+    selectedTestDetailsSelector,
+} from '../../../modules/patient/store/test-details-ui/test-details-ui.selectors';
+import { actions as TestDetailsUIActions } from '../../../modules/patient/store/test-details-ui/test-details-ui.slice';
+import { dispatch } from '../../../store';
+import { AsyncStatus } from '../../../types/AsyncStatus';
+
+// ##################################################################################
+// USAGE:
+//          // PATIENT ID + DIAGNOSTIC REPORT ID + OBSERVATION ID ▶ returns a SINGLE Diagnostic Report w/ an Observation spliced in
+//          `const { testDetails, isUninitialized, isLoading, isError, isSuccess } = useFetchPatientTestDetailsQuery('123abc', '4d5e', 'o212312');`
+//
+// ##################################################################################
+export function useFetchPatientTestDetailsQuery(
+    patientId: string,
+    diagRepId: string = null,
+    observationId: string = null
+) {
+    const { setDiagReport, setPatient, setPatientId, setTestDetailsId } = TestDetailsUIActions;
+    const data = useSelector(selectedTestDetailsSelector);
+    const status = useSelector(queryPendingTestDetailsSelector);
+
+    // testing selector
+    const obzIds = useSelector(patientObservationIdsSelector);
+    const obz = useSelector(patientObservationsSelector);
+    console.log(`🚀 ~ CUSTOM HOOK: obzIds`, obzIds);
+    console.log(`🚀 ~ CUSTOM HOOK: obz`, obz);
+
+    useEffect(
+        useAsyncEffect(async () => {
+            if (!patientId || !observationId || !diagRepId) return;
+
+            // set Ids
+            dispatch(PatientUICommonActions.setPatientId(patientId)); // 🛑  TODO: TBD: I need to actually read this Patient, instead of using my unnecessary setPatient below, afaik)
+            dispatch(setPatientId(patientId));
+
+            // fhir requests
+            const fhirDiagReports = await dispatch(thunksDiagReport.query([`Patient/${patientId}`])).unwrap();
+            const fhirObservation = await dispatch(thunksObservation.fetchById(observationId)).unwrap();
+            const fhirPatient = await dispatch(thunksPatient.fetchById(patientId)).unwrap();
+
+            // just need one diag report (NOTE: couldn't get thunkDiagReport.findById to work (validation error, iirc))
+            const diagReport = fhirDiagReports.find((dr: R4.IDiagnosticReport) => dr.id === diagRepId);
+
+            // set IDs
+            dispatch(setTestDetailsId((fhirObservation as any).id));
+            dispatch(setDiagReport(diagReport));
+            dispatch(setPatient(fhirPatient as unknown as R4.IPatient));
+        }),
+        [dispatch, observationId, patientId, diagRepId]
+    );
+
+    const isLoading = status === AsyncStatus.Pending || status === AsyncStatus.Void;
+    const isUninitialized = status === AsyncStatus.Void;
+    const isError = status === AsyncStatus.Rejected;
+    const isSuccess = status === AsyncStatus.Fulfilled;
+
+    return {
+        data,
+        isUninitialized,
+        isLoading,
+        isError,
+        isSuccess,
+    };
+}
+```
+
+
+
+
+
+## Phase 2 - RTK-Q
+
+```JS 
+import { R4 } from '@ahryman40k/ts-fhir-types';
+import { skipToken } from '@reduxjs/toolkit/query/react';
+import keyBy from 'lodash/keyBy';
+import * as React from 'react';
+import { ReactText, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { unbundle } from '../../../fhir/be-api-common';
+import { BundleResourceQuery } from '../../../fhir/query';
+import { diagnosticreportApi, observationApi, ObservationQuery } from '../../../fhir/query-store';
+import PatientTestHistory from '../../components/PatientTestHistory/PatientTestHistory';
+import { diagnosticReportToTestHistory, pluckObsId } from '../../fhir-mappers/test-history.mapper';
+import { TestHistory } from '../../models/test-history';
+
+export const PatientTestHistoryContainer: React.FC = () => {
+    const { id: patientId } = useParams<{ id?: string }>();
+    const [selectedRowsKeys, setSelectedRowsKeys] = useState<ReactText[]>([]);
+
+    // ##################################################################################
+    // DIAGNOSTIC REPORTS (test history)
+    // ##################################################################################
+    const {
+        data: fhirDiagnosticReports,
+        isLoading: isLoadingDiagnosticReports,
+        isFetching: isFetchingDiagnosticReports,
+    } = diagnosticreportApi.useQueryQuery({
+        subject: `Patient/${patientId}`,
+    });
+
+    // ##################################################################################
+    // OBSERVATIONS (test details)
+    // ##################################################################################
+    type obsBundleType = BundleResourceQuery<ObservationQuery>[];
+    const observationIds = fhirDiagnosticReports?.map((dr) => pluckObsId(dr.result));
+    const uniqueObservationIds = [...new Set(observationIds)];
+
+    let testHistory;
+    let obsArgs: typeof skipToken | obsBundleType = skipToken;
+    if (uniqueObservationIds?.length) {
+        obsArgs = uniqueObservationIds?.map(
+            (id): BundleResourceQuery<ObservationQuery> => ({
+                kind: 'fetchById',
+                id,
+            })
+        );
+    }
+    const {
+        data: fhirObsBundle,
+        isLoading: isLoadingObs,
+        isFetching: isFetchingObs,
+    } = observationApi.useBundleQuery(obsArgs);
+    if (fhirObsBundle?.length) {
+        const fhirObs: R4.IObservation[] = fhirObsBundle?.map(unbundle).filter(Boolean) || undefined;
+        const entitiesObs = keyBy(fhirObs, 'id');
+        testHistory = fhirDiagnosticReports?.map((dr) => {
+            const obsId = pluckObsId(dr.result);
+            const foundObs = entitiesObs[obsId];
+            return foundObs ? diagnosticReportToTestHistory(dr, foundObs) : [];
+        });
+        // NOTE: apparently there are cases where multiple DRs will have the SAME DATE, and we should just take one of those (unsorted is OK, as these are just test records afaik)
+        const dateMap = keyBy(testHistory, 'dateCompleted');
+        testHistory = Object.keys(dateMap).map((id) => dateMap[id]);
+    }
+
+    const isLoading = isLoadingDiagnosticReports || isFetchingDiagnosticReports || isLoadingObs || isFetchingObs;
+
+    if (isLoading) {
+        return <>Loading...</>;
+    }
+
+    return (
+        <PatientTestHistory
+            testHistories={testHistory as TestHistory[]}
+            downloadCartridgePdf={null}
+            downloadAllCartridgePdf={null}
+            downloadCartridgeCsv={null}
+            downloadAllCartridgeCsv={null}
+            testTotalElements={testHistory?.length}
+            testPageSize={null}
+            testPage={null}
+            testPageChangeRequested={null}
+            selectedRowsKeys={selectedRowsKeys}
+            setSelectedRowsKeys={setSelectedRowsKeys}
+            loading={isLoading}
+            patientId={patientId}
+        />
+    );
+};
+```
+
+
+
+
+
+
+
+# ==AT END/BOTTOM plz==
+
+# ⭐️ UI Features / Highlights
+
+- Show test history
+- test details
+- Patient search page
+- skeletons movie
+
+
+
+
+
+
+
+# 📚 Resources for Hi-Productivity and DX
+
+- [Typora](https://typora.io/) for editing markdown files 
+- a [GitHub](https://github.com/) personal knowledge base 
+- [Bookmarks Extension](https://marketplace.visualstudio.com/items?itemName=alefragnani.Bookmarks) for VS Code
+- [Loom](https://loom.com/) for sharing and making sure I don't miss anything
+- [CODDX](https://marketplace.visualstudio.com/items?itemName=coddx.coddx-alpha) personal Kanban board for VS Code
+
+
+
+
+
+# ==🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘== 
+
+# ==IDEAS and SCRATCH==
+
+
+
+
+
+
+
+
+
+![image (1)](/Users/karlgolka/PROJECTS/FYI/_typora_images/image (1).png)
+
+
+
+![image](/Users/karlgolka/PROJECTS/FYI/_typora_images/image-6938065.png)
 
 
 
@@ -43,6 +318,7 @@
 - [ ] POKAZ: `Account Profile.tsx` and containers
 - [ ] POKAZ: the <DataFilters> and `<DataFiltersNew>`
 - [ ] POKAZ: the Live Visit container lol and after with RTK-Q :) ==and simpler visit history?==
+- [ ] SEE: [Code-RTK-Q-allowed-us-to-DECOMISH.md](/Users/karlgolka/PROJECTS/FYI/_Employers/Cue Health/__POCs/POC-2-RESULTS-✅/Code-RTK-Q-allowed-us-to-DECOMISH.md)
 
 
 
@@ -56,277 +332,4 @@
 
 
 
-
-
-
-
-
-
-🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘 
-
-
-
-# **Table of Contents** 
-
-- [🕙 How I Spent My Time](#-how-i-spent-my-time)
-- [💻 Code Samples](#-code-samples)
-- [🎦 Demos and Videos Samples](#-demos-and-videos-samples)
-- [⭐️ UI Features / Highlights](#%EF%B8%8F-ui-features--highlights)
-- [🗣 Testimonials and Feedback](#-testimonials-and-feedback)
-- [📚 Other Resources](#-other-resources)
-- [🔗 Other Code Samples](#-other-code-samples)
-
-
-
-# 🕙 How I Spent My Time
-
-```mermaid
-pie
-    title Time Spent at PAN
-    "React UI / Features (40%)" : 40
-    "Refactoring & Tech Debt (30%)" : 30
-    "Tooling, CLI, Automation (15%)" : 15
-    "Mentoring / Pair Sessions (10%)" :  10
-		"Testing (5%)" :  5
-```
-
-# 💻 Code Samples
-
-| <u>Terminology</u>:                           |                                                              |                             |                                  |
-| --------------------------------------------- | ------------------------------------------------------------ | --------------------------- | -------------------------------- |
-| `RTK` <br />*Redux ToolKit* (Redux basically) | `RTK-Q`<br /> *Redux ToolKit - Query* <br />(data fetching, cache management) | `MFE`<br />*Micro-Frontend* | `msw`<br />*Mock Service Worker* |
-
-![image-20220321090416210](/Users/karlgolka/FYI/_typora_images/image-20220321090416210-5822605.png)
-
-### RTK-Q API, Endpoints, and Auto-Generated Hooks
-
-*  [Example #1](code-samples/rtkq/api-endpoints-and-hooks.md)
-
-### RTK-Q Builders 
-
-* [Example #1](code-samples/rtkq/builders/example-1.md) (Get Pending Assets)
-* [Example #2](code-samples/rtkq/builders/example-2.md) (Start Transfer)
-
-### RTK-Q Cache Updates
-
-* [Pessimistic Example](code-samples/rtkq/cache-updates/pessimistic.md)
-* [Optimistic Example](code-samples/rtkq/cache-updates/optimistic.md)
-
-* [General (from Component) Example](code-samples/rtkq/cache-updates/general.md) 
-
-### Component Examples:
-
-* [License "Temperature Gauges"](code-samples/components/temperature-gauges.md) (simple)
-* [Incoming Popover](code-samples/components/incoming-popover.md) (simple)
-* [Expiration Extension CTA](code-samples/components/IEECTA.md) (with **react-query** and **Jest** unit tests)
-* [Transfer Asset Drawer](code-samples/components/transfer-asset-drawer.md) (more complex, with **StoryBook** & **Cypress** testing)
-
-### Other Javascript Examples
-
-* ["Fetcher" Service based on `fetch`](code-samples/javascript/fetch.md) 
-* ["Fetcher" Service based `axios`](code-samples/javascript/axios.md) (for `RTK-Q`)
-
-### POC / Spike Story Examples
-
-- [ctx-options ("Context Options") ](https://github.com/charlieargue/ctx-options) repo I made showing patterns for avoiding **React Context** "over-rendering" and state management
-
-
-### Mocked API Server Examples
-
-- [`msw` and `@mswjs/data`](code-samples/msw/msw.md) 
-
-### Cypress Integration Tests
-
-- [E2E tests and tooling](code-samples/cypress/e2e.md)
-
-![image-20220321090326954](/Users/karlgolka/FYI/_typora_images/image-20220321090326954-5822605.png)
-
-### CLI & Tooling Examples
-
-- [token.js](code-samples/CLI-tooling/token.md) - automates repetitive daily developer chores
-- [msw.js](code-samples/CLI-tooling/msw.md) - initializes and bootstraps `msw`  for any `MFE`
-
-
-
-
-
-# 🎦 Demos and Videos Samples
-
-- [MSW Overview Video](https://github.com/charlieargue/pan-code-samples/issues/1) (<2 min)
-- [29 Cypress E2E](https://github.com/charlieargue/pan-code-samples/issues/2) tests running against `msw` (3.5 min)
-- [Demo of Asset Transfer Flows](https://github.com/charlieargue/pan-code-samples/issues/3) (before loading animations/skeletons were added)
-
-
-
-
-
-# ⭐️ UI Features / Highlights
-
-<img src="/Users/karlgolka/FYI/_typora_images/image-20220317224458358-5822605.png" alt="image-20220317224458358" style="zoom:67%;" />
-
-<img src="/Users/karlgolka/FYI/_typora_images/Pasted_Image_3_17_22__11_22_PM-5822605.png" alt="Pasted_Image_3_17_22__11_22_PM" style="zoom:67%;" />
-
-![image-20220319085303200](/Users/karlgolka/FYI/_typora_images/image-20220319085303200-5822605.png)
-
-<img src="/Users/karlgolka/FYI/_typora_images/Pasted_Image_3_17_22__10_47_PM-5822605.png" alt="Pasted_Image_3_17_22__10_47_PM" style="zoom:67%;" />
-
-
-
-![Pasted_Image_3_17_22__11_02_PM](/Users/karlgolka/FYI/_typora_images/Pasted_Image_3_17_22__11_02_PM.png)
-
-
-
-**Popover Samples:** Incoming, Outgoing, and Rejected
-
-| <img src="_markdown_assets/images/image-20220319084702253.png" alt="image-20220319084702253" style="zoom:67%;" /> | <img src="_markdown_assets/images/image-20220319084829923.png" alt="image-20220319084829923" style="zoom:67%;" /> |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| <img src="_markdown_assets/images/image-20220319084932623.png" alt="image-20220319084932623" style="zoom:67%;" /> | <img src="_markdown_assets/images/image-20220317231958141.png" alt="image-20220317231958141" style="zoom:87%;" /> |
-
-
-
-
-
-
-# 🗣 Testimonials and Feedback
-
-`Mazen Ghalayini` — Staff React Engineer, Direct Supervisor ([LinkedIn](https://www.linkedin.com/in/mazen-g-a76139179/), mghalayini@paloaltonetworks.com)
-
-`Hanford Choy` — Non-Technical Project Manager (hchoy@paloaltonetworks.com)
-
-`Alexander Jones` — Team Head Designer ([LinkedIn](https://www.linkedin.com/in/alexander-jones7/), aljones@paloaltonetworks.com)
-
-`Palak Mehrotra` — Senior Software Engineer ([LinkedIn](https://www.linkedin.com/in/palakmehrotra/))
-
-`Veerendra Vundavalli`  — .NET & React (+Native) Developer ([LinkedIn](https://www.linkedin.com/in/veerendravundavalli/))
-
-
-
-### Feedback after Demo 
-
- `Jan 21, 2022` (*from #slack*)
-
-| <img src="_markdown_assets/images/image-20220318155554872-7645128.png" alt="image-20220318155554872" style="zoom:67%;" /> | ![5lp](_markdown_assets/images/5lp.gif) |
-| ------------------------------------------------------------ | --------------------------------------- |
-
-
-
-
-
-### Feedback from Supervising Staff Engineers
-
-
-
-> "As far as coding, your credentials are extremely high, I mean, there's not much I can teach you... if anything, I'm probably gonna have to learn from you..." [during 1-on-1 performance review] 
->
-> — 🗣 *[Mazen Ghalayini](https://www.linkedin.com/in/mazen-g-a76139179/)* `Feb 15, 2022`
->
-> 🔉 **[Audio Clip 1](https://github.com/charlieargue/pan-code-samples/issues/4)** 
-
-
-
-> "I think this is excellent work, I think we're moving at a really good pace." [<u>re:</u> MFE refactoring and eliminating tech debt] 
-> — 🗣 *[Mazen Ghalayini](https://www.linkedin.com/in/mazen-g-a76139179/)*  `Jan 4, 2022`
->
-> 🔉 **[Audio Clip 2](https://github.com/charlieargue/pan-code-samples/issues/5)** 
-
-
-
-> "I love what you did with puppeteer." [<u>re:</u> automating MFE token authentication] 
-> — 🗣 *[Mazen Ghalayini](https://www.linkedin.com/in/mazen-g-a76139179/)* `Dec 9, 2021`
-
-
-
-> "It was a great effort on the MFE refactoring." 
->
-> — 🗣 *[Mazen Ghalayini](https://www.linkedin.com/in/mazen-g-a76139179/)* `Jan 18, 2021`
-
-
-
-> "Alright, let's give it a shot!" [<u>re</u>: adopting my idea for a shared Postman collection between FE and BE teams] 
->
-> — 🗣 *[Mazen Ghalayini](https://www.linkedin.com/in/mazen-g-a76139179/)*  `Feb 22, 2022`
-
-
-
-> "... [unlike other engineer, whose PR's are] total rewrites sometimes... yours so far have been very good, I've only needed to do CSS-stuff [minor things]... keep [doing] what you're doing, you're doing good... you've definitely like learned a lot about how we do things, and you probably now have a really good grasp of how things work... you've been doing great... so just continue to do that, that's great [<u>re:</u> my successful team adoption efforts]... " [during 1-on-1 performance review] 
->
-> — 🗣 *[Mazen Ghalayini](https://www.linkedin.com/in/mazen-g-a76139179/)*  `Feb 15, 2022`
-
-
-
-> "...you know, also, ... we're kind of under siege from [a lot of directions]... so yeah, I think your suggestion is a good one that we need to try..."  [<u>re</u>: to seriously consider GraphQL as an option] 
->
-> — 🗣 *[Vish Ramamurthy](https://www.linkedin.com/in/veerendravundavalli/)*  `Feb 23, 2022`
-
-
-
-> "You're doing better than all the other people that I onboarded. I'm the first UI developer [on this Rewrite Team], and then it was two others, and a third one, ... two got kicked out, one is still with us, and you are the last one now! ... In my opinion, you definitely are showing the right attitude, and I'm getting the right signals from others... and if you need me to vouch for you, I'm going to give them the thumbs-up... and so far I think you're doing good because I get a pretty good impression from someone higher than me.... he's said good things about you, so keep it up, and you'll get recognized... and hired... I think you'll definitely get there, and it'll be good for Palo Alto, I mean you're a very good candidate for them!" [<u>re:</u> converting from contractor to full-time employment]." 
-> — 🗣 *[Mazen Ghalayini](https://www.linkedin.com/in/mazen-g-a76139179/)*  `Dec 8, 2021` 
-
-
-
-### Feedback from Project Management
-
-> "BTW, I gave you the most exciting feature that I believe will be used by a lot of customers :)."  
->
-> — 🗣 *Hanford Choy*,  `Feb 1, 2022`
-
-
-
-> "Karl, [epic] looks really good. Congrats! I could not find any issues, and closed this ticket."
->
-> — 🗣 *Hanford Choy*,  `Dec 7, 2021`
->
-> 
-
-### Feedback from Designer
-
-> "You're selling it, that's exactly what I'm looking for!" [re: toast notifications, popover messaging, and row highlighting proposals] 
->
-> — 🗣 *[Alexander Jones](https://www.linkedin.com/in/alexander-jones7/)*  `Feb 23, 2022`
-
-
-
-### Feedback from BE/FE Team
-
-> "I agree with Karl, actually." [<u>re</u>: my clarifying Big Query vs MySQL confusion on Asset Transfer epic] — 🗣 *Palak Mehrotra*  `Feb 23, 2022`
-
-
-
-> "Thanks to Mazen and Karl for all their help on UI and Artifactory setup" 
->
-> — 🗣 *[Veerendra Vundavalli](https://www.linkedin.com/in/veerendravundavalli/)*  `Feb, 2022`
-
-
-
-
-
-# 📚 Other Resources
-
-- [Impact on Team](Impact.md)
-- [MBP "Setup Cheatsheet"](other/mbp-setup-cheatsheet.md)
-- Sample [Design Document](other/design-doc.md)
-- Example of [Clear Communication](other/JIRA-clear-communication.md) (in JIRA)
-- [Javascript libraries](other/libraries.md) I Introduced
-- 📊 [Flowcharts and Diagrams](other/flowcharts-diagrams.md)
-
-
-
-# 🔗 Other Code Samples
-
-Not related to Palo Alto Networks:
-
-- https://github.com/charlieargue/multi-cart#-code-samples (React • GQL • Serverless)
-- https://github.com/charlieargue/multi-cart-pg (React • GQL • PERN stack + Typescript)
-- https://github.com/charlieargue/multi-cart-MRP-containers (Minimum Reproducible Project) 
-  - made while trouble-shooting my GitHub Actions `.yml` script
-  - helped me successfully run Cypress E2E specs across multiple machines in parallel 
-  - helped in fixing CICD `yarn` and `npm` caching issues
-- https://github.com/charlieargue/clickup-july-table (Successfully-passed Angular Interview take-home test for [ClickUp.com](https://clickup.com/))
-
-
-
-# ✉️ Contact Me
-
-My personal website is https://karlgolka.com/ and you can email me at contact@karlgolka.com 
 
