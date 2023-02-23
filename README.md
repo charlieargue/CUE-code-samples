@@ -57,11 +57,9 @@ pie
 - 
 - 
 - 
-- RTK-Q: show my typescript ==builder pattern==, yes!
-- RTK-Q: big ==live visit one== (just after, yes I think! it'll be sanitized!)
-- Account Profile.tsx (see below)
+- 
+- RTK-Q: big ==live visit one== (just after, yes I think! it'll be sanitized!), it should have lots of useeffects, right?
 - show "what we were able ==to remove==", and maybe show as an example, one of the bad FILES we were entirely able to remove, like LV or something :), show some ==screen grabs of the GITHUB removal RED tags!!!!==💎
-- show the ==useEffects== we removed!
 - Show 👎 BEFORE & 👍 AFTER: `setUnreadMessages` b/c now using ==React.Context== here below
 
 
@@ -104,11 +102,10 @@ pie
 
 
 
-- [ ] POKAZ: the <DataFilters> and `<DataFiltersNew>`
+
+
 - [ ] POKAZ: the Live Visit container lol and after with RTK-Q :) ==and simpler visit history?==
 - [ ] SEE: [Code-RTK-Q-allowed-us-to-DECOMISH.md](/Users/karlgolka/PROJECTS/FYI/_Employers/Cue Health/__POCs/POC-2-RESULTS-✅/Code-RTK-Q-allowed-us-to-DECOMISH.md)
-
-- [ ] break up into files
 - [ ] ==STYLE-GUIDE!!!==
 - [ ] YES: show the one with 7 useEffects LV, right?
 - [ ] YES:  before and after?
@@ -124,100 +121,6 @@ https://www.loom.com/share/cd0eafe654e54a539859d034da8a0e50 (24 minutes in is ==
 
 
 
-
-
-
-## Phase 2 - RTK-Q
-
-```JS 
-import { R4 } from '@ahryman40k/ts-fhir-types';
-import { skipToken } from '@reduxjs/toolkit/query/react';
-import keyBy from 'lodash/keyBy';
-import * as React from 'react';
-import { ReactText, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { unbundle } from '../../../fhir/be-api-common';
-import { BundleResourceQuery } from '../../../fhir/query';
-import { diagnosticreportApi, observationApi, ObservationQuery } from '../../../fhir/query-store';
-import PatientTestHistory from '../../components/PatientTestHistory/PatientTestHistory';
-import { diagnosticReportToTestHistory, pluckObsId } from '../../fhir-mappers/test-history.mapper';
-import { TestHistory } from '../../models/test-history';
-
-export const PatientTestHistoryContainer: React.FC = () => {
-    const { id: patientId } = useParams<{ id?: string }>();
-    const [selectedRowsKeys, setSelectedRowsKeys] = useState<ReactText[]>([]);
-
-    // ##################################################################################
-    // DIAGNOSTIC REPORTS (test history)
-    // ##################################################################################
-    const {
-        data: fhirDiagnosticReports,
-        isLoading: isLoadingDiagnosticReports,
-        isFetching: isFetchingDiagnosticReports,
-    } = diagnosticreportApi.useQueryQuery({
-        subject: `Patient/${patientId}`,
-    });
-
-    // ##################################################################################
-    // OBSERVATIONS (test details)
-    // ##################################################################################
-    type obsBundleType = BundleResourceQuery<ObservationQuery>[];
-    const observationIds = fhirDiagnosticReports?.map((dr) => pluckObsId(dr.result));
-    const uniqueObservationIds = [...new Set(observationIds)];
-
-    let testHistory;
-    let obsArgs: typeof skipToken | obsBundleType = skipToken;
-    if (uniqueObservationIds?.length) {
-        obsArgs = uniqueObservationIds?.map(
-            (id): BundleResourceQuery<ObservationQuery> => ({
-                kind: 'fetchById',
-                id,
-            })
-        );
-    }
-    const {
-        data: fhirObsBundle,
-        isLoading: isLoadingObs,
-        isFetching: isFetchingObs,
-    } = observationApi.useBundleQuery(obsArgs);
-    if (fhirObsBundle?.length) {
-        const fhirObs: R4.IObservation[] = fhirObsBundle?.map(unbundle).filter(Boolean) || undefined;
-        const entitiesObs = keyBy(fhirObs, 'id');
-        testHistory = fhirDiagnosticReports?.map((dr) => {
-            const obsId = pluckObsId(dr.result);
-            const foundObs = entitiesObs[obsId];
-            return foundObs ? diagnosticReportToTestHistory(dr, foundObs) : [];
-        });
-        // NOTE: apparently there are cases where multiple DRs will have the SAME DATE, and we should just take one of those (unsorted is OK, as these are just test records afaik)
-        const dateMap = keyBy(testHistory, 'dateCompleted');
-        testHistory = Object.keys(dateMap).map((id) => dateMap[id]);
-    }
-
-    const isLoading = isLoadingDiagnosticReports || isFetchingDiagnosticReports || isLoadingObs || isFetchingObs;
-
-    if (isLoading) {
-        return <>Loading...</>;
-    }
-
-    return (
-        <PatientTestHistory
-            testHistories={testHistory as TestHistory[]}
-            downloadCartridgePdf={null}
-            downloadAllCartridgePdf={null}
-            downloadCartridgeCsv={null}
-            downloadAllCartridgeCsv={null}
-            testTotalElements={testHistory?.length}
-            testPageSize={null}
-            testPage={null}
-            testPageChangeRequested={null}
-            selectedRowsKeys={selectedRowsKeys}
-            setSelectedRowsKeys={setSelectedRowsKeys}
-            loading={isLoading}
-            patientId={patientId}
-        />
-    );
-};
-```
 
 
 
