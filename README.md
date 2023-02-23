@@ -45,9 +45,18 @@ pie
 
 
 
+### Preparing for RTK-Q
+
+* [**Re-usable Hooks:** DRY-ing and Hiding the Implementation Details](Hooks.md)
+
+
+
 ### RTK-Q Refactoring Journey
 
-- show ==hooks== WITHOUT RTK-Q 👎 BEFORE & 👍 AFTER: 
+- [**Account Profile:** Removing Redux boilerplate and redundant state management](Account-Profile.md) 
+- 
+- 
+- 
 - RTK-Q: show my typescript ==builder pattern==, yes!
 - RTK-Q: big ==live visit one== (just after, yes I think! it'll be sanitized!)
 - Account Profile.tsx (see below)
@@ -89,138 +98,6 @@ pie
 
 
 
-# POKAZ: `Account Profile.tsx` and containers
-
-**Before:**
-
-* lots of selectors and everything in REDUX
-* State over-complicated and stored twice (in Formik state and again in Redux)
-* lots of `useEffects` making it hard to reason about this component, esp. for new React engineers
-```js
-// 👎 BEFORE: 
-const AccountProfileContainer: FC = () => {
-    const dispatch = useAppDispatch();
-    const profile = useSelector(selectProfileData);
-    const isProfilePending = useSelector(selectIsProfileStatusPending);
-    const isUpdateProfilePending = useSelector(selectIsUpdateProfileStatusPending);
-    const isUpdateProfilePicturePending = useSelector(selectIsUpdateProfilePictureStatusPending);
-    const pracititionerFHIRResource = useSelector(selectPractitionerFHIRResource);
-    const usStates = useSelector(selectStatesAbbreviation);
-    const isUSStatesPending = useSelector(selectIsStatesStatusPending);
-    const i18nConfig = useSelector(selectConfigData);
-    const [formData, setFormData] = useState<AccountProfileFormValues>({
-        firstName: '',
-        middleName: '',
-        lastName: '',
-        email: '',
-        type: AuthTypes.UserType.Home,
-        phoneType: null,
-        phoneNumber: '',
-        zipCode: '',
-        city: '',
-        birthDate: '',
-        stateOfResidence: '',
-        prefix: '',
-        suffix: '',
-        picture: '',
-        fax: '',
-        address: '',
-    });
-
-    useEffect(() => {
-        dispatch(fetchProfile({}));
-        dispatch(fetchStates());
-        dispatch(fetchConfig());
-    }, []);
-
-    useEffect(() => {
-        if (!profile) return;
-        if (profile.practitionerId) {
-            dispatch(practitionerThunks.fetchById(profile.practitionerId));
-        }
-        setFormData({
-            ...formData,
-            ...profileToAccountProfileFormValues(profile),
-        });
-    }, [profile]);
-
-    useEffect(() => {
-        if (!pracititionerFHIRResource) return;
-        setFormData({
-            ...formData,
-            ...practitionerToAccountProfileFormValues(pracititionerFHIRResource),
-        });
-    }, [pracititionerFHIRResource]);
-  
-  // ....
-```
-
-**PLUS all these REDUX plumbing <u>files</u> , totally HUNDREDS and often thousands of lines of code:**
-
-1. 🧩 actions (AsyncThunk)
-
-2. 🧩 api fetchers functions
-
-3. 🧩 selectors
-
-4. 🧩 state slices
-
-5. 🧩 reducers
-
-   
-
-
-
-
-
-
-**After:**
-
-* no selectors
-* no extra redundant state, Formik handles everything
-* no extra `useEffects` 
-* all 🧩 REDUX plumbing files **deleted**!
-
-```js 
-// 👍 AFTER: 
-const AccountProfileContainer: FC = () => {
-    const dispatch = useAppDispatch();
-    const [triggerAddPractitioner] = practitionerApi.useAddMutation();
-    const [triggerEditPractitioner] = practitionerApi.useEditMutation();
-    const [triggerEditUser, { isLoading: isLoadingUser }] = useEditUserMutation();
-    const [triggerEditUserPicture, { isLoading: isLoadingUserPicture }] = useEditUserPictureMutation();
-    const [triggerWriteSignedUrl, { isLoading: isLoadingWriteSignedUrl }] = useWriteSignedUrlMutation();
-
-    const { data: stateList, isLoading: isLoadingStates, isFetching: isFetchingStates } = useFetchStatesQuery();
-    const usStates = (stateList || []).map(({ abbreviation }) => abbreviation);
-    const { data: profile, isLoading: isLoadingProfile } = useGetMeQuery();
-    const { data: i18nConfig, isLoading: isLoadingConfig, isFetching: isFetchingConfig } = useFetchConfigQuery();
-    let pracArgs: typeof skipToken | string = skipToken;
-    if (profile?.practitionerId) {
-        pracArgs = profile?.practitionerId;
-    }
-    const {
-        data: fhirPractitioner,
-        isLoading: isLoadingPractitionerFHIR,
-        isFetching: isFetchingPractitionerFHIR,
-    } = practitionerApi.useFetchByIdQuery(pracArgs);
-
-    const isLoading =
-        isLoadingStates ||
-        isFetchingStates ||
-        isLoadingProfile ||
-        isLoadingPractitionerFHIR ||
-        isFetchingPractitionerFHIR ||
-        isLoadingConfig ||
-        isFetchingConfig;
-
-    if (isLoading) {
-        return <>Loading...</>;
-    }
-
-		// ...
-```
-
 
 
 
@@ -245,92 +122,6 @@ https://www.loom.com/share/cd0eafe654e54a539859d034da8a0e50 (24 minutes in is ==
 
 
 
-
-### Sample #1 - Showing the POC - Phase #1
-
-==clean this up==
-
-```js 
-// THX: https://redux-toolkit.js.org/rtk-query/usage/migrating-to-rtk-query#custom-hook
-import { R4 } from '@ahryman40k/ts-fhir-types';
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { useAsyncEffect } from '../../../lib/use-async-effect';
-import { thunks as thunksDiagReport } from '../../../modules/fhir/store/diagnostic-report/diagnostic-report-entity-adapter.slice';
-import { thunks as thunksObservation } from '../../../modules/fhir/store/observation/observation-adapter.slice';
-import { thunks as thunksPatient } from '../../../modules/fhir/store/patient-entity-adapter.slice';
-import {
-    patientObservationIdsSelector,
-    patientObservationsSelector,
-} from '../../../modules/patient/store/common/selectors';
-import { actions as PatientUICommonActions } from '../../../modules/patient/store/common/slice';
-import {
-    queryPendingSelector as queryPendingTestDetailsSelector,
-    selectedTestDetailsSelector,
-} from '../../../modules/patient/store/test-details-ui/test-details-ui.selectors';
-import { actions as TestDetailsUIActions } from '../../../modules/patient/store/test-details-ui/test-details-ui.slice';
-import { dispatch } from '../../../store';
-import { AsyncStatus } from '../../../types/AsyncStatus';
-
-// ##################################################################################
-// USAGE:
-//          // PATIENT ID + DIAGNOSTIC REPORT ID + OBSERVATION ID ▶ returns a SINGLE Diagnostic Report w/ an Observation spliced in
-//          `const { testDetails, isUninitialized, isLoading, isError, isSuccess } = useFetchPatientTestDetailsQuery('123abc', '4d5e', 'o212312');`
-//
-// ##################################################################################
-export function useFetchPatientTestDetailsQuery(
-    patientId: string,
-    diagRepId: string = null,
-    observationId: string = null
-) {
-    const { setDiagReport, setPatient, setPatientId, setTestDetailsId } = TestDetailsUIActions;
-    const data = useSelector(selectedTestDetailsSelector);
-    const status = useSelector(queryPendingTestDetailsSelector);
-
-    // testing selector
-    const obzIds = useSelector(patientObservationIdsSelector);
-    const obz = useSelector(patientObservationsSelector);
-    console.log(`🚀 ~ CUSTOM HOOK: obzIds`, obzIds);
-    console.log(`🚀 ~ CUSTOM HOOK: obz`, obz);
-
-    useEffect(
-        useAsyncEffect(async () => {
-            if (!patientId || !observationId || !diagRepId) return;
-
-            // set Ids
-            dispatch(PatientUICommonActions.setPatientId(patientId)); // 🛑  TODO: TBD: I need to actually read this Patient, instead of using my unnecessary setPatient below, afaik)
-            dispatch(setPatientId(patientId));
-
-            // fhir requests
-            const fhirDiagReports = await dispatch(thunksDiagReport.query([`Patient/${patientId}`])).unwrap();
-            const fhirObservation = await dispatch(thunksObservation.fetchById(observationId)).unwrap();
-            const fhirPatient = await dispatch(thunksPatient.fetchById(patientId)).unwrap();
-
-            // just need one diag report (NOTE: couldn't get thunkDiagReport.findById to work (validation error, iirc))
-            const diagReport = fhirDiagReports.find((dr: R4.IDiagnosticReport) => dr.id === diagRepId);
-
-            // set IDs
-            dispatch(setTestDetailsId((fhirObservation as any).id));
-            dispatch(setDiagReport(diagReport));
-            dispatch(setPatient(fhirPatient as unknown as R4.IPatient));
-        }),
-        [dispatch, observationId, patientId, diagRepId]
-    );
-
-    const isLoading = status === AsyncStatus.Pending || status === AsyncStatus.Void;
-    const isUninitialized = status === AsyncStatus.Void;
-    const isError = status === AsyncStatus.Rejected;
-    const isSuccess = status === AsyncStatus.Fulfilled;
-
-    return {
-        data,
-        isUninitialized,
-        isLoading,
-        isError,
-        isSuccess,
-    };
-}
-```
 
 
 
@@ -434,19 +225,6 @@ export const PatientTestHistoryContainer: React.FC = () => {
 
 
 
-# ==AT END/BOTTOM plz==
-
-# ⭐️ UI Features / Highlights
-
-- Show test history
-- test details
-- Patient search page
-- skeletons movie
-
-
-
-
-
 
 
 # 📚 Resources for Hi-Productivity and DX
@@ -461,23 +239,128 @@ export const PatientTestHistoryContainer: React.FC = () => {
 
 
 
-# ==🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘🔘== 
-
-# ==IDEAS and SCRATCH==
+# 🗣 Testimonials and Feedback
 
 
 
+### Technical / Architectural Impact
+
+>  "I like the hooks thing in the PR you had... there is a definitely a lot of room for improvement, uh, around what we have now and, uh, this direction is, is definitely a good one." [my introduction of re-usable hooks for data-fetching and caching] 
+
+— 🗣 [Maciej Ligenza](https://www.linkedin.com/in/maciej-ligenza-083bb12/), Staff Engineer at Treeline `Jun 20, 2022` 
+
+
+
+>  "Thanks for the videos! these were super helpful... your [PR] code looks good!" 
+
+— 🗣 Piotr Hasooni, Staff Engineer at Treeline `Aug 12, 2022` 
+
+
+
+>  "Thanks Karl for all your help and awesome work looking into all the components and updating the tickets! Truly appreciate it! 
+>
+>  ... Terrific! Thank you so much for writing great examples for us to refer to! Appreciate that you pay attention to the details and offer suggestions for the naming conventions.
+>
+>  ... Thanks for reviewing my PR and adding valuable comments. 
+>
+>  ... Thanks Karl for adding more guidance and putting potential conflicts in thoughts! This is very helpful."
+
+— 🗣 [Yi Angelov](https://www.linkedin.com/in/yi-angelov/), SDE at Treeline `September 2022` 
 
 
 
 
 
+### Team Building
 
-![image (1)](/Users/karlgolka/PROJECTS/FYI/_typora_images/image (1).png)
+>  "As much energy I have, it is does not even come close to the passion and dedication you have for work. I gotta step up my game ...."
+
+— 🗣  [Shaurya Kapoor](https://www.linkedin.com/in/skapoor831/), SDE at Cue `Aug 3, 2022` 
 
 
 
-![image](/Users/karlgolka/PROJECTS/FYI/_typora_images/image-6938065.png)
+>  "And thanks, Karl. I know Karl's been helping a lot kind of with the more junior devs, getting them straightened out a little bit. So shout out to the Karl for being helpful and open to help with that kind of stuff."
+
+— 🗣 [Summer Box](https://www.linkedin.com/in/summer-box-5a479920/), Software Development Manager at Cue `Jun 12, 2022` 
+
+
+
+> "As the senior person there [on the team], they're really learning a lot from you, and they're really taking away a lot of the things that you bring to the table!"
+
+— 🗣 [David Hendrickson](https://www.linkedin.com/in/david-hendrickson-667971102/), Director, Software Development at Cue `Aug 15, 2022` 
+
+
+
+>  "And as always thank you for the feedback! It's nice having an outspoken senior dev"
+
+— 🗣 [Summer Box](https://www.linkedin.com/in/summer-box-5a479920/), Software Development Manager at Cue `Jul 28, 2022` 
+
+
+
+>  "Hey, thanks again for all the help. I'll try not to poke you too much but I might bother you a bit here and there because you were really really helpful."
+
+— 🗣 [Doug Lloyd](https://www.linkedin.com/in/doug-lloyd-29b149186/), SDE at Cue `Jun 20, 2022` 
+
+
+
+>  "Karl, a dev like you would be wanted anywhere. Thank you for all the help and mentorship. I learned a lot from you and already seen how much I've grown as an engineer, that's all thanks to you."
+
+— 🗣 [Karun Narayan](https://www.linkedin.com/in/karun-narayan/), SDE at Cue `Oct 6, 2022` 
+
+
+
+
+
+### Feedback from Supervisors
+
+
+>  "Karl, just wanted to say thank you for stepping up right now! Your leadership is greatly appreciated" 
+
+— 🗣 [Bobby Wayne](https://www.linkedin.com/in/bobbywayne/), VP, Software Development at Cue Health
+
+
+
+>  "You're doing a great job and emerging as a leader on our nascent team!"
+
+— 🗣 [David Hendrickson](https://www.linkedin.com/in/david-hendrickson-667971102/), Director, Software Development at Cue `Jun 11, 2022` 
+
+
+
+>  "Huge thank you to Karl for tenaciously tracking down and resolving a p1 this evening!! Let's recap on Monday and see if there's anything we can do to avoid this issues from taking over anyone else's Friday night in the future." [during On-Call P1 issue] 
+
+— 🗣 [Bobby Wayne](https://www.linkedin.com/in/bobbywayne/), VP, Software Development at Cue Health `Aug 8, 2022` 
+
+
+
+
+>  "Again good work... Great work really chasing down the ticket! You both went above and beyond. Also don't hesitate when you were unsure to escalate and texting me was the right thing!" [during On-Call P1 issue] 
+
+— 🗣 [Mark Adkins](https://www.linkedin.com/in/mark-adkins/), VP, Engineering at Treeline (Cue's team)  `Aug 8, 2022` 
+
+
+
+>  "I would certainly appreciate and will solicit your input on who we should be keeping around... I think that you are seeing the opportunity of being this very senior person [and] the advocate for tech debt on the team ... great talk, I feel like I learned a ton, so thank you for that -- I feel like I've been educated quite a bit, and this is exactly the kind of thing I want to get out of these kinds of conversations." [during a 1-on-1] 
+
+— 🗣 [Bobby Wayne](https://www.linkedin.com/in/bobbywayne/), VP, Software Development at Cue Health `Aug 17, 2022` 
+
+
+
+
+
+# ⭐️ UI Features / Highlights
+
+- Show test history
+- test details
+- Patient search page
+- skeletons movie
+
+
+
+
+
+# ✉️ Contact Me
+
+My personal website is https://karlgolka.com/ and you can email me at [contact@karlgolka.com](mailto:contact@karlgolka.com)
 
 
 
