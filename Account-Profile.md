@@ -9,7 +9,7 @@
 * lots of selectors and everything in REDUX
 * State over-complicated and stored twice (in Formik state and again in Redux)
 * lots of `useEffects` making it hard to reason about this component, esp. for new React engineers
-* **PLUS many REDUX plumbing <u>files</u> , totalling THOUSANDS of lines of code:**
+* **PLUS many REDUX plumbing <u>files</u> , totalling more than a THOUSAND of lines of code:**
   1. 🧩 actions (AsyncThunk)
 
   2. 🧩 api fetchers functions
@@ -171,7 +171,7 @@ const AccountProfileContainer: FC = () => {
             },
         }));
 
-
+		// ... etc. over a thousand lines of all this boileraplate just for a simple Account Profile...
 
 ```
 
@@ -216,7 +216,7 @@ const AccountProfileContainer: FC = () => {
         return <>Loading...</>;
     }
 
-		// ... and an RTK-Q builder file
+    // ... and an RTK-Q builder file
     builder.mutation<AuthTypes.AuthUser, Partial<AuthTypes.AuthUser>>({
         query: (resource) => ({
             url: `/me`,
