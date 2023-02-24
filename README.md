@@ -209,9 +209,9 @@ pie
 
 ### **Patient Live Visit**
 
-![Screenshot 2023-02-22 at 6.19.36 PM](_typora_images/Screenshot 2023-02-22 at 6.19.36 PM.png)
+![Screenshot 2023-02-22 at 6.19.18 PM](_typora_images/live-visit-consult-survey.png)
 
-![Screenshot 2023-02-22 at 6.19.18 PM](_typora_images/Screenshot 2023-02-22 at 6.19.18 PM.png)
+![Screenshot 2023-02-22 at 6.19.36 PM](_typora_images/live-visit-waiting-room.png)
 
 
 
