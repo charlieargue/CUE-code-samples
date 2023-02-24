@@ -191,27 +191,27 @@ pie
 
 ### **Patient Search**
 
-![sample-patient-search](/Users/karlgolka/PROJECTS/FYI/_typora_images/sample-patient-search.png)
+![sample-patient-search](_typora_images/sample-patient-search.png)
 
 
 
 ### **Patient COVID Test History**
 
-![sample-test-history](/Users/karlgolka/PROJECTS/FYI/_typora_images/sample-test-history.png)
+![sample-test-history](_typora_images/sample-test-history.png)
 
 
 
 ### **Patient COVID Test Details**
 
-![sample-test-details](/Users/karlgolka/PROJECTS/FYI/_typora_images/sample-test-details.png)
+![sample-test-details](_typora_images/sample-test-details.png)
 
 
 
 ### **Patient Live Visit**
 
-![Screenshot 2023-02-22 at 6.19.36 PM](/Users/karlgolka/PROJECTS/FYI/_typora_images/Screenshot 2023-02-22 at 6.19.36 PM.png)
+![Screenshot 2023-02-22 at 6.19.36 PM](_typora_images/Screenshot 2023-02-22 at 6.19.36 PM.png)
 
-![Screenshot 2023-02-22 at 6.19.18 PM](/Users/karlgolka/PROJECTS/FYI/_typora_images/Screenshot 2023-02-22 at 6.19.18 PM.png)
+![Screenshot 2023-02-22 at 6.19.18 PM](_typora_images/Screenshot 2023-02-22 at 6.19.18 PM.png)
 
 
 
