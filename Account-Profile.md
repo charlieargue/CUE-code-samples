@@ -16,7 +16,7 @@
 
   3. 🧩 selectors
 
-  4. 🧩 state slices
+  4. 🧩 stores
 
   5. 🧩 reducers
 
@@ -104,7 +104,7 @@ const AccountProfileContainer: FC = () => {
   );
 
   
-  // .... PLUS A THOUSAND LINES of REDUCERS and ASYNC THUNKS
+  // .... FETCHERS and ASYNC THUNKS
   export const updateProfilePicture = createAsyncThunk(
     'account/updateProfilePicture',
     withError(
@@ -123,7 +123,7 @@ const AccountProfileContainer: FC = () => {
 );
 
   
-    // ....
+    // .... REDUCERS
     builder
         .addCase(updateProfile.pending, (state) => ({
             ...state,
@@ -146,8 +146,6 @@ const AccountProfileContainer: FC = () => {
                 status: AsyncStatus.Rejected,
             },
         }));
-
-    // updateProfilePicture
     builder
         .addCase(updateProfilePicture.pending, (state) => ({
             ...state,
@@ -171,7 +169,7 @@ const AccountProfileContainer: FC = () => {
             },
         }));
 
-		// ... etc. over a thousand lines of all this boileraplate just for a simple Account Profile...
+		// ... etc. over a thousand lines of this kind of boileraplate...
 
 ```
 
