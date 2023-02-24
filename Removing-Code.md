@@ -10,7 +10,7 @@
 
 
 
-==Removed **SLICE** Files:==
+#### Removed **SLICE** Files:
 
 ```js 
 import { slice as patientListingUISlice } from './patient-listing-ui/patient-listing-ui.slice';
@@ -28,7 +28,7 @@ export const patientListingLocator = (s: PatientUIState) => s.patientListing;
 
 
 
-==Removed **REDUCER** Files:==
+#### Removed **REDUCER** Files:
 
 ```js 
 
@@ -64,7 +64,7 @@ export const actions = slice.actions;
 
 
 
-==Removed **STORE** Files:==
+#### Removed **STORE** Files:
 
 ```js 
 import { SearchPatient } from '../../models/patient';
@@ -95,7 +95,7 @@ export const patientListingUIInitialState: PatientListingUIState = {
 
 
 
-==Removed **SELECTOR** Files:==
+#### Removed **SELECTOR** Files:
 
 ```js 
 import { createSelector } from '@reduxjs/toolkit';
