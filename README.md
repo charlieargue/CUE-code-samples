@@ -33,7 +33,7 @@
 pie
     title Time Spent at CUE
     "Refactoring & Tech Debt (40%)" : 40
-		"Onboarding & Mentoring SDEs (30%)" :  30
+		"Onboarding & Mentoring (30%)" :  30
 		"React UI / Features (30%)" : 30
 ```
 
@@ -48,6 +48,7 @@ pie
 ### Preparing for RTK-Q
 
 * [**Re-usable Hooks:** DRY-ing and Hiding Implementation Details](Hooks.md)
+* [**State Pyramid**: Making globalized state more muscular](State-Pyramid.md)
 
 
 
@@ -56,46 +57,7 @@ pie
 - [**Account Profile:** Removing Redux boilerplate and redundant state management](Account-Profile.md) 
 - [**Live Visit Details:**  A more advanced RTK-Q refactoring example](Live-Visit-Details.md)
 -  [**Advocate for Clean Code:** Guiding team to not over-engineer and take on tech debt unnecessarily](Clean-Code.md) 
-
-
-
-- **`query-combinators.ts` :** Show his `computeShit` and what I REJECTED, recognizing it as unnecessary, overly-clever, and a fan-boy attempt at introducing-at-any-cost-or-reason, his own flavor of Haskell-meets-combinatorial-functional programming bad wizard bullshit.... 
-- RTK-Q: big ==live visit one== (just after, yes I think! it'll be sanitized!), it should have lots of useeffects, right?
-- show "what we were able ==to remove==", and maybe show as an example, one of the bad FILES we were entirely able to remove, like LV or something :), show some ==screen grabs of the GITHUB removal RED tags!!!!==💎
-- Show 👎 BEFORE & 👍 AFTER: `setUnreadMessages` b/c now using ==React.Context== here below
-- 
-
-
-
-# State Mngmnt / RTK-Q and React.Context REFACTORING BEFORE & AFTER:
-
-- [ ] **React.Context:** 👎 BEFORE & 👍 AFTER: 
-
-  - [ ] ```js 
-    EVERY LITTLE THING!
-    👎 BEFORE & (for real! it almost looks like a joke ;)
-    // setUnreadMessages: (state) => {
-            //     if (state.twilioModal) {
-            //         return {
-            //             ...state,
-            //             twilioModal: {
-            //                 ...state.twilioModal,
-            //                 unreadMessages: true,
-            //             },
-            //         };
-            //     }
-            // },
-      
-      
-      
-      👍 AFTER: 
-    
-    case 'setUnreadMessages': {
-      return { ...state, unreadMessages: true };
-    }
-    ```
-
-
+-  [**Removing Thousands of Lines of Code:** and gaining functionality!](Removing-Code.md)
 
 
 
