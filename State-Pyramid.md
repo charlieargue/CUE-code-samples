@@ -8,49 +8,47 @@ I called this strategy a "State Pyramid", inspired by [Martin Fowler's Testing P
 
 Basically, move your state down and then "lift" it as necessary and only when necessary, and make it more sophisticated only when necessary:
 
-* useState
-* Lift it or co-locate it
-* Component composition
-* Compound components
-* React.Context
+1. useState
+2. Lift it or co-locate it
+3. Component composition
+4. Compound components
+5. React.Context
 
 
 
+This approach allowed for:
+
+- Removal of dozens of no longer necessary and cumbersome `useEffects`
+- Often entire removal of state management code (eg. Replaced by local state, RTK-Q, or was redundant in the first place)
+- More readable code that was easier to maintain
 
 
-## 👎 BEFORE: 
+
+## 👎 Before:
 
 ```js
-
+setUnreadMessages: (state) => {
+            if (state.twilioModal) {
+                return {
+                    ...state,
+                    twilioModal: {
+                        ...state.twilioModal,
+                        unreadMessages: true,
+                    },
+                };
+            }
+        },
 ```
 
 
 
 
 
-- [ ] **React.Context:** 👎 BEFORE & 👍 AFTER: 
+# 👍 After: `using React.Context`
 
-  - [ ] ```js 
-    EVERY LITTLE THING!
-    👎 BEFORE & (for real! it almost looks like a joke ;)
-    // setUnreadMessages: (state) => {
-            //     if (state.twilioModal) {
-            //         return {
-            //             ...state,
-            //             twilioModal: {
-            //                 ...state.twilioModal,
-            //                 unreadMessages: true,
-            //             },
-            //         };
-            //     }
-            // },
-      
-      
-      
-      👍 AFTER: 
-    
-    case 'setUnreadMessages': {
-      return { ...state, unreadMessages: true };
-    }
-    ```
+```js 
+case 'setUnreadMessages': {
+  return { ...state, unreadMessages: true };
+}
+```
 

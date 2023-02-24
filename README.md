@@ -20,6 +20,7 @@
 
 - [🕙 How I Spent My Time](https://github.com/charlieargue/CUE-code-samples#-how-i-spent-my-time)
 - [💻 Code Samples](https://github.com/charlieargue/CUE-code-samples#-code-samples)
+- [📚 Resources for Hi-Productivity and DX](https://github.com/charlieargue/CUE-code-samples#-resources-for-hi-productivity-and-DX)
 - [🗣 Testimonials and Feedback](https://github.com/charlieargue/CUE-code-samples#-testimonials-and-feedback)
 - [⭐️ UI Features / Highlights](https://github.com/charlieargue/CUE-code-samples#️-ui-features--highlights)
 
@@ -58,38 +59,7 @@ pie
 - [**Live Visit Details:**  A more advanced RTK-Q refactoring example](Live-Visit-Details.md)
 -  [**Advocate for Clean Code:** Guiding team to not over-engineer and take on tech debt unnecessarily](Clean-Code.md) 
 -  [**Removing Thousands of Lines of Code:** and gaining functionality!](Removing-Code.md)
-
-
-
-
-
-
-
-
-
-
-
-- [ ] POKAZ: the Live Visit container lol and after with RTK-Q :) ==and simpler visit history?==
-- [ ] SEE: [Code-RTK-Q-allowed-us-to-DECOMISH.md](/Users/karlgolka/PROJECTS/FYI/_Employers/Cue Health/__POCs/POC-2-RESULTS-✅/Code-RTK-Q-allowed-us-to-DECOMISH.md)
-- [ ] ==STYLE-GUIDE!!!==
-- [ ] YES: show the one with 7 useEffects LV, right?
-- [ ] YES:  before and after?
-
-search here: ![image-20230222181056084](/Users/karlgolka/PROJECTS/FYI/_typora_images/image-20230222181056084.png)
-
-https://www.loom.com/share/cd0eafe654e54a539859d034da8a0e50 (24 minutes in is ==Before.tsx==)
-
-- [ ] VIP! must show this! it's sanitized I think, check it again! Super nice :) https://www.loom.com/share/cfa602e0bbc74e949d9a00efe4d2971e RTKQ Kick-off of my 749 epic ... == and shows my style-guide==
-
-
-
-
-
-
-
-
-
-
+-  **Styleguide and Epic Kick-Off:** Started a style guide in the codebase and led the team thru my refactoring epic, here's [🎥 a short video](https://www.loom.com/share/cfa602e0bbc74e949d9a00efe4d2971e) that I made about that and sent out to the team.
 
 
 
@@ -217,12 +187,37 @@ https://www.loom.com/share/cd0eafe654e54a539859d034da8a0e50 (24 minutes in is ==
 
 # ⭐️ UI Features / Highlights
 
-- Show test history
-- test details
-- Patient search page
-- skeletons movie
 
 
+### **Patient Search**
+
+![sample-patient-search](/Users/karlgolka/PROJECTS/FYI/_typora_images/sample-patient-search.png)
+
+
+
+### **Patient COVID Test History**
+
+![sample-test-history](/Users/karlgolka/PROJECTS/FYI/_typora_images/sample-test-history.png)
+
+
+
+### **Patient COVID Test Details**
+
+![sample-test-details](/Users/karlgolka/PROJECTS/FYI/_typora_images/sample-test-details.png)
+
+
+
+### **Patient Live Visit**
+
+![Screenshot 2023-02-22 at 6.19.36 PM](/Users/karlgolka/PROJECTS/FYI/_typora_images/Screenshot 2023-02-22 at 6.19.36 PM.png)
+
+![Screenshot 2023-02-22 at 6.19.18 PM](/Users/karlgolka/PROJECTS/FYI/_typora_images/Screenshot 2023-02-22 at 6.19.18 PM.png)
+
+
+
+### **Loading Skeletons**
+
+* [🎥 Short video](https://www.loom.com/share/0e7fdf4e39a849b7bb2771ef51ced92d) showing a better visual loading experience with skeletons that I introduced site-wide.
 
 
 
