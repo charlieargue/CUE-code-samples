@@ -30,6 +30,10 @@
 
 # 🕙 How I Spent My Time
 
+- **40%**: Refactoring & Tech Debt
+- **30%**: Onboarding & Mentoring
+- **30%**: React UI / Features
+
 ```mermaid
 pie
     title Time Spent at CUE
@@ -59,7 +63,7 @@ pie
 - [**Live Visit Details:**  A more advanced RTK-Q refactoring example](Live-Visit-Details.md)
 -  [**Advocate for Clean Code:** Guiding team to not over-engineer and take on tech debt unnecessarily](Clean-Code.md) 
 -  [**Removing Thousands of Lines of Code:** and gaining functionality!](Removing-Code.md)
--  **Styleguide and Epic Kick-Off:** Started a style guide in the codebase and led the team thru my refactoring epic, here's [🎥 a short video](https://www.loom.com/share/cfa602e0bbc74e949d9a00efe4d2971e) that I made about that and sent out to the team.
+-  **Styleguide and Epic Kick-Off:** Started a style guide in the codebase and led the team thru my refactoring epic, here's [🎥 a short kick-off video](https://www.loom.com/share/cfa602e0bbc74e949d9a00efe4d2971e) that I made for the team.
 
 
 
@@ -70,8 +74,8 @@ pie
 - [Typora](https://typora.io/) for editing markdown files 
 - a [GitHub](https://github.com/) personal knowledge base 
 - [Bookmarks Extension](https://marketplace.visualstudio.com/items?itemName=alefragnani.Bookmarks) for VS Code
-- [Loom](https://loom.com/) for sharing and making sure I don't miss anything
 - [CODDX](https://marketplace.visualstudio.com/items?itemName=coddx.coddx-alpha) personal Kanban board for VS Code
+- [Loom](https://loom.com/) for easy and secure sharing
 
 
 
@@ -83,13 +87,13 @@ pie
 
 ### Technical / Architectural Impact
 
->  "I like the hooks thing in the PR you had... there is a definitely a lot of room for improvement, uh, around what we have now and, uh, this direction is, is definitely a good one." [my introduction of re-usable hooks for data-fetching and caching] 
+>  "I like the hooks thing in the PR you had... there is a definitely a lot of room for improvement, uh, around what we have now and, uh, this direction is, is definitely a good one." [my introduction of re-usable React hooks for data-fetching and caching] 
 
 — 🗣 [Maciej Ligenza](https://www.linkedin.com/in/maciej-ligenza-083bb12/), Staff Engineer at Treeline `Jun 20, 2022` 
 
 
 
->  "Thanks for the videos! these were super helpful... your [PR] code looks good!" 
+>  "Thanks for the [loom] videos! these were super helpful... your [PR] code looks good!" 
 
 — 🗣 Piotr Hasooni, Staff Engineer at Treeline `Aug 12, 2022` 
 
@@ -117,7 +121,7 @@ pie
 
 
 
->  "And thanks, Karl. I know Karl's been helping a lot kind of with the more junior devs, getting them straightened out a little bit. So shout out to the Karl for being helpful and open to help with that kind of stuff."
+>  "And thanks, Karl. I know Karl's been helping a lot kind of with the more junior devs, getting them straightened out a little bit. So shout out to Karl for being helpful and open to help with that kind of stuff."
 
 — 🗣 [Summer Box](https://www.linkedin.com/in/summer-box-5a479920/), Software Development Manager at Cue `Jun 12, 2022` 
 
@@ -129,7 +133,7 @@ pie
 
 
 
->  "And as always thank you for the feedback! It's nice having an outspoken senior dev"
+>  "And as always thank you for the feedback! It's nice having an outspoken senior dev."
 
 — 🗣 [Summer Box](https://www.linkedin.com/in/summer-box-5a479920/), Software Development Manager at Cue `Jul 28, 2022` 
 
@@ -152,7 +156,7 @@ pie
 ### Feedback from Supervisors
 
 
->  "Karl, just wanted to say thank you for stepping up right now! Your leadership is greatly appreciated" 
+>  "Karl, just wanted to say thank you for stepping up right now! Your leadership is greatly appreciated." 
 
 — 🗣 [Bobby Wayne](https://www.linkedin.com/in/bobbywayne/), VP, Software Development at Cue Health
 
@@ -171,9 +175,9 @@ pie
 
 
 
->  "Again good work... Great work really chasing down the ticket! You both went above and beyond. Also don't hesitate when you were unsure to escalate and texting me was the right thing!" [during On-Call P1 issue] 
+>  "Again good work... Great work really chasing down the ticket! You both went above and beyond. Also don't hesitate when you were unsure to escalate and texting me was the right thing!" [resolving an On-Call P1 issue] 
 
-— 🗣 [Mark Adkins](https://www.linkedin.com/in/mark-adkins/), VP, Engineering at Treeline (Cue's team)  `Aug 8, 2022` 
+— 🗣 [Mark Adkins](https://www.linkedin.com/in/mark-adkins/), VP, Engineering at Treeline  `Aug 8, 2022` 
 
 
 
@@ -186,6 +190,14 @@ pie
 
 
 # ⭐️ UI Features / Highlights
+
+*Some key UI and features I built and refactored, though during refactoring I touched nearly all of the enterprise Clinic codebase — a FE codebase with over 200k lines of code.*
+
+
+
+### **Loading Skeletons**
+
+* [🎥 Short video](https://www.loom.com/share/0e7fdf4e39a849b7bb2771ef51ced92d) showing skeletons that I introduced site-wide during my RTK-Q refactoring, for a better visual loading experience.
 
 
 
@@ -214,10 +226,6 @@ pie
 ![Screenshot 2023-02-22 at 6.19.36 PM](_typora_images/live-visit-waiting-room.png)
 
 
-
-### **Loading Skeletons**
-
-* [🎥 Short video](https://www.loom.com/share/0e7fdf4e39a849b7bb2771ef51ced92d) showing a better visual loading experience with skeletons that I introduced site-wide.
 
 
 
