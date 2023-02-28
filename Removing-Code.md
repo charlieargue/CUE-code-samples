@@ -6,7 +6,9 @@
 * less network requests
 * and less bugs!
 
-*Moving the team away from the Agency's own cumbersome solution, and using Redux's RTK-Q instead, my refactoring effort eliminated the need to hand-write tedious and bug-prone code, such as the following example sample files, totaling in the thousands of lines of code and dozens of files:*
+*Moving the team away from the Agency's own cumbersome solution, and using Redux's RTK-Q instead, my refactoring effort eliminated the need to hand-write tedious and bug-prone code, such as the following example sample files, totaling in the **thousands** of lines of code and **dozens** of files:*
+
+
 
 
 
@@ -134,16 +136,7 @@ export const selectedPatientListingSelector = createSelector(
     (patientListingIds, encounterIds, entitiesPatients, entitiesEncounters): Patient[] => {
         const patientsEncounters = encounterIds.map((id: string) => entitiesEncounters[id]).filter(isPresent);
 
-        return patientListingIds
-            .map((id: string) => entitiesPatients[id])
-            .filter(isPresent)
-            .map((pat: IPatient) => {
-                const myFirstEncounter = patientsEncounters.filter((enc) => {
-                    const patId = pluckPatientId(enc);
-                    return patId === pat.id;
-                })[0];
-                return patientToPatient(pat, null, null, myFirstEncounter);
-            });
+       // ...
     }
 );
 
