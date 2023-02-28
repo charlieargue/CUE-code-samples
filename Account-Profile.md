@@ -1,24 +1,24 @@
 # Account Profile
 
-*Sample code showing removal of over a thousand lines of Redux boilerplate and redundant state management code that was bug-prone and difficult to maintain even for senior engineers.*
+*<u>Sample code</u> showing removal of over a thousand lines of Redux boilerplate and redundant state management code that was bug-prone and difficult to maintain, even for senior engineers.*
 
 
 
 ## 👎 BEFORE: 
 
 * lots of selectors and everything in REDUX
-* State over-complicated and stored twice (in Formik state and again in Redux)
+* state over-complicated and stored twice (in Formik state and again in Redux)
 * lots of `useEffects` making it hard to reason about this component, esp. for new React engineers
-* **PLUS many REDUX plumbing <u>files</u> , totalling more than a THOUSAND of lines of code:**
-  1. 🧩 actions (AsyncThunk)
+* **PLUS many Redux boilerplate <u>files</u> , totaling more than a THOUSAND of lines of code:**
+  1. actions (AsyncThunk)
 
-  2. 🧩 api fetchers functions
+  2. api fetchers functions
 
-  3. 🧩 selectors
+  3. selectors
 
-  4. 🧩 stores
+  4. stores
 
-  5. 🧩 reducers
+  5. reducers
 
 
 ```js
@@ -178,9 +178,9 @@ const AccountProfileContainer: FC = () => {
 ## 👍 AFTER: 
 
 * RTK-Q for data-fetching and cache management
-* no selectors no extra redundant state, Formik handles everything
-* no extra `useEffects` 
-* all 🧩 REDUX plumbing files **deleted**!
+* no selectors and no redundant state, Formik handles everything
+* no `useEffects` 
+* all Redux boilerplate files **deleted**
 
 ```js 
 // 👍 AFTER: 
@@ -213,6 +213,7 @@ const AccountProfileContainer: FC = () => {
     if (isLoading) {
         return <>Loading...</>;
     }
+    return <AccountProfile .......
 
     // ... and an RTK-Q builder file
     builder.mutation<AuthTypes.AuthUser, Partial<AuthTypes.AuthUser>>({
