@@ -1,4 +1,4 @@
-# CUE Post-Mortem
+# CUE Code Samples
 
 
 
@@ -85,6 +85,40 @@ pie
 
 
 
+### Feedback from Supervisors
+
+
+>  "Karl, just wanted to say thank you for stepping up right now! Your leadership is greatly appreciated." 
+
+— 🗣 [Bobby Wayne](https://www.linkedin.com/in/bobbywayne/), VP, Software Development at Cue Health
+
+
+
+>  "You're doing a great job and emerging as a leader on our nascent team!"
+
+— 🗣 [David Hendrickson](https://www.linkedin.com/in/david-hendrickson-667971102/), Director, Software Development at Cue `Jun 11, 2022` 
+
+
+
+>  "Huge thank you to Karl for tenaciously tracking down and resolving a p1 this evening!! Let's recap on Monday and see if there's anything we can do to avoid this issues from taking over anyone else's Friday night in the future." [during On-Call P1 issue] 
+
+— 🗣 [Bobby Wayne](https://www.linkedin.com/in/bobbywayne/), VP, Software Development at Cue Health `Aug 8, 2022` 
+
+
+
+
+>  "Again good work... Great work really chasing down the ticket! You both went above and beyond. Also don't hesitate when you were unsure to escalate and texting me was the right thing!" [resolving an On-Call P1 issue] 
+
+— 🗣 [Mark Adkins](https://www.linkedin.com/in/mark-adkins/), VP, Engineering at Treeline  `Aug 8, 2022` 
+
+
+
+>  "I would certainly appreciate and will solicit your input on who we should be keeping around... I think that you are seeing the opportunity of being this very senior person [and] the advocate for tech debt on the team ... great talk, I feel like I learned a ton, so thank you for that -- I feel like I've been educated quite a bit, and this is exactly the kind of thing I want to get out of these kinds of conversations." [during a 1-on-1] 
+
+— 🗣 [Bobby Wayne](https://www.linkedin.com/in/bobbywayne/), VP, Software Development at Cue Health `Aug 17, 2022` 
+
+
+
 ### Technical / Architectural Impact
 
 >  "I like the hooks thing in the PR you had... there is a definitely a lot of room for improvement, uh, around what we have now and, uh, this direction is, is definitely a good one." [my introduction of re-usable React hooks for data-fetching and caching] 
@@ -150,40 +184,6 @@ pie
 — 🗣 [Karun Narayan](https://www.linkedin.com/in/karun-narayan/), SDE at Cue `Oct 6, 2022` 
 
 
-
-
-
-### Feedback from Supervisors
-
-
->  "Karl, just wanted to say thank you for stepping up right now! Your leadership is greatly appreciated." 
-
-— 🗣 [Bobby Wayne](https://www.linkedin.com/in/bobbywayne/), VP, Software Development at Cue Health
-
-
-
->  "You're doing a great job and emerging as a leader on our nascent team!"
-
-— 🗣 [David Hendrickson](https://www.linkedin.com/in/david-hendrickson-667971102/), Director, Software Development at Cue `Jun 11, 2022` 
-
-
-
->  "Huge thank you to Karl for tenaciously tracking down and resolving a p1 this evening!! Let's recap on Monday and see if there's anything we can do to avoid this issues from taking over anyone else's Friday night in the future." [during On-Call P1 issue] 
-
-— 🗣 [Bobby Wayne](https://www.linkedin.com/in/bobbywayne/), VP, Software Development at Cue Health `Aug 8, 2022` 
-
-
-
-
->  "Again good work... Great work really chasing down the ticket! You both went above and beyond. Also don't hesitate when you were unsure to escalate and texting me was the right thing!" [resolving an On-Call P1 issue] 
-
-— 🗣 [Mark Adkins](https://www.linkedin.com/in/mark-adkins/), VP, Engineering at Treeline  `Aug 8, 2022` 
-
-
-
->  "I would certainly appreciate and will solicit your input on who we should be keeping around... I think that you are seeing the opportunity of being this very senior person [and] the advocate for tech debt on the team ... great talk, I feel like I learned a ton, so thank you for that -- I feel like I've been educated quite a bit, and this is exactly the kind of thing I want to get out of these kinds of conversations." [during a 1-on-1] 
-
-— 🗣 [Bobby Wayne](https://www.linkedin.com/in/bobbywayne/), VP, Software Development at Cue Health `Aug 17, 2022` 
 
 
 
