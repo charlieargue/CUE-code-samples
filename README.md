@@ -100,6 +100,12 @@ pie
 
 
 
+>  "You've been on top of your stories!" 
+
+— 🗣 Pranaya, Project Manager at Cue `May 26, 2022` 
+
+
+
 >  "Huge thank you to Karl for tenaciously tracking down and resolving a p1 this evening!! Let's recap on Monday and see if there's anything we can do to avoid this issues from taking over anyone else's Friday night in the future." [during On-Call P1 issue] 
 
 — 🗣 [Bobby Wayne](https://www.linkedin.com/in/bobbywayne/), VP, Software Development at Cue Health `Aug 8, 2022` 
